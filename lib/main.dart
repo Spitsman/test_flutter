@@ -1,29 +1,80 @@
 import 'package:flutter/material.dart';
 
-class MyBody extends StatefulWidget {
+enum GenderList {male, female}
+
+class MyForm extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => MyBodyState();
+  State<StatefulWidget> createState() => MyFormState();
 }
 
-class MyBodyState extends State<MyBody> {
-  List<String> _array = [];
+class MyFormState extends State {
+  final _formKey = GlobalKey<FormState>();
+  GenderList _gender;
+  bool _argreement = false;
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(itemBuilder: (context, i) {
-      print('num $i : нечетное = ${i.isOdd}');
+    return new Container(
+      padding: EdgeInsets.all(10.0),
+      child: Form(
+        key: _formKey,
+        child: new Column(
+          children: <Widget>[
+            new Text('Name:', style: TextStyle(fontSize: 20.0),),
+            new TextFormField(
+              validator: (value) {
+                if (value.isEmpty) return 'Fill name';
+              }),
+            new SizedBox(height: 20.0,),
 
-      if (i.isOdd) return new Divider();
-      final int index = i ~/ 2;
+            new Text('Email:', style: TextStyle(fontSize: 20.0),),
+            new TextFormField(
+                validator: (value) {
+                  if (value.isEmpty) return 'Fill email';
+                }),
+            new SizedBox(height: 20.0,),
 
-      if (index >= _array.length) {
-        print('index $index');
-        print('length ${_array.length}');
-        _array.addAll(['${index + 1}', '${index + 2}', '${index + 3}']);
-      }
 
-      return new ListTile(title: new Text(_array[index]),);
-    });
+            new Text('Gender', style: TextStyle(fontSize: 20.0)),
+            new RadioListTile(title: Text('Male'), value: GenderList.male, groupValue: _gender, onChanged: (GenderList value){
+              setState(() {
+                _gender = value;
+              });
+            }),
+            new RadioListTile(title: Text('Female'), value: GenderList.female, groupValue: _gender, onChanged: (GenderList value){
+              setState(() {
+                _gender = value;
+              });
+            }),
+            new SizedBox(height: 20.0,),
+
+            new CheckboxListTile(value: _argreement, title: new Text('Agreement'), onChanged: (bool value) => setState(() => _argreement = value)),
+            new SizedBox(height: 20.0,),
+
+            new RaisedButton(
+              onPressed: () {
+                if (_formKey.currentState.validate()) {
+                  Color color = Colors.red;
+                  String text;
+
+                  if (_gender == null) {
+                    text = 'Select gender';
+                  } else if (_argreement == false) {
+                    text = 'Need agreement';
+                  } else {
+                    text = 'Form successfully filled';
+                    color = Colors.green;
+                  }
+                  Scaffold.of(context).showSnackBar(new SnackBar(content: Text(text), backgroundColor: color,));
+                }
+              },
+              child: Text('Submit'),
+              color: Colors.blue,
+              textColor: Colors.white,
+            )
+          ],
+        ),),
+    );
   }
 }
 
@@ -31,7 +82,8 @@ void main() => runApp(
   new MaterialApp(
     debugShowCheckedModeBanner: false,
     home: new Scaffold(
-        body: MyBody()
+      appBar: new AppBar(title: new Text('Biba')),
+      body: MyForm()
       )
     )
   );
